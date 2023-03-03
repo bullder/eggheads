@@ -7,6 +7,7 @@ if (php_sapi_name() !== 'cli') {
 
 require __DIR__ . '/vendor/autoload.php';
 
+use Cli\Db;
 use Cli\Hello;
 use Minicli\App;
 use Minicli\Command\CommandCall;
@@ -16,8 +17,20 @@ $app->setSignature('./cli mycommand');
 
 $app->registerCommand('mycommand', function(CommandCall $input) {
     echo Hello::hello();
+});
 
-    var_dump($input);
+
+$app->registerCommand('seed', function (CommandCall $input) use ($app) {
+    if ('do' === $input->subcommand) {
+        $db = new Db();
+        try {
+            $app->getPrinter()->success($db->seedDb());
+        } catch (Throwable $throwable) {
+            $app->getPrinter()->error('Something went wrong:' . $throwable->getMessage() . $throwable->getTraceAsString());
+        }
+    } else {
+        $app->getPrinter()->info('You have to pass arg "do"');
+    }
 });
 
 $app->runCommand($argv);

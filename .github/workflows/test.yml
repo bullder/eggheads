@@ -15,7 +15,7 @@ jobs:
       mysql:
         image: mysql:latest
         env:
-          MYSQL DATABASE: test
+          MYSQL_DATABASE: test
           MYSQL_HOST: 127.0.0.1
           MYSOL_USER: admin
           MYSQL_PASSWORD: admin123
@@ -32,5 +32,7 @@ jobs:
         run: sudo composer self-update 1.10.15 --no-interaction
       - name: Run Composer Install
         run: composer install --no-interaction
+      - name: seed db
+        run: ./cli seed do
       - name: run tests
         run: vendor/bin/phpunit
