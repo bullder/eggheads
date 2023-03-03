@@ -1,0 +1,23 @@
+#!/usr/bin/env php
+<?php
+
+if (php_sapi_name() !== 'cli') {
+    exit;
+}
+
+require __DIR__ . '/vendor/autoload.php';
+
+use Cli\Hello;
+use Minicli\App;
+use Minicli\Command\CommandCall;
+
+$app = new App();
+$app->setSignature('./cli mycommand');
+
+$app->registerCommand('mycommand', function(CommandCall $input) {
+    echo Hello::hello();
+
+    var_dump($input);
+});
+
+$app->runCommand($argv);
