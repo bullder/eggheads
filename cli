@@ -13,9 +13,9 @@ use Minicli\App;
 use Minicli\Command\CommandCall;
 
 $app = new App();
-$app->setSignature('./cli mycommand');
+$app->setSignature('use command get or seed');
 
-$app->registerCommand('mycommand', function(CommandCall $input) {
+$app->registerCommand('get', function() {
     echo Hello::hello();
 });
 
