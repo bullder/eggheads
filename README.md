@@ -1,4 +1,4 @@
-Question 1.
+### Question 1.
 
 ```php
 $mysqli = new mysqli("localhost", "my_user", "my_password", "world");
@@ -22,7 +22,7 @@ $res = $stmt->get_result();
 $user = $res->fetch_assoc();
 ```
 
-Question 2.
+### Question 2.
 
 Исходный код
 ```php
@@ -38,7 +38,7 @@ while ($question = $questionsQ->fetch_assoc()) {
 $questionsQ->free();
 ```
 
-Рефакторинг [полный код]() [покрытие тестами]() 
+Рефакторинг [полный код](https://github.com/bullder/eggheads/blob/master/src/Db.php#L48) [покрытие тестами](https://github.com/bullder/eggheads/blob/master/test/DbTest.php) 
 ```php
 $stmt = $this->con->prepare('
     select q.*, u.name, u.gender from 
@@ -56,5 +56,34 @@ while ($row = $stmt->fetch()) {
 }
 
 return $result;
-```php
+```
 
+### Question 3.
+
+> Имеем следующие таблицы:
+> 1. users — контрагенты
+> 2. orders — заказы
+
+> Необходимо выбрать одним запросом следующее (следует учесть, что будет включена опция only_full_group_by в MySql):
+> 1. Имя контрагента
+> 2. Его телефон
+> 3. Сумма всех его заказов
+> 4. Его средний чек
+> 5. Дата последнего заказа
+
+Не очень понятно к чему тут отсыл only_full_group_by когда для такого запроса не используется having или order по не агрегированным полям, операции которые отклоняются only_full_group_by 
+
+[Фиддл базы и запроса](http://sqlfiddle.com/#!9/195bdb/1)
+[Черновик запросов](https://github.com/bullder/eggheads/blob/master/thirdQuestion.sql)
+
+```sql
+SELECT
+   u.name AS user_name,
+   u.phone AS user_phone,
+   SUM(o.subtotal) AS total_spent,
+   AVG(o.subtotal) AS average_order_value,
+   MAX(o.created) AS last_order_date
+FROM users u
+LEFT JOIN orders o ON u.id = o.user_id
+GROUP BY u.id, u.name, u.phone 
+```
