@@ -9,12 +9,31 @@ use PHPUnit\Framework\TestCase;
 
 class DbTest extends TestCase
 {
-    public final function testGet(): void
+    private Db $db;
+
+    public function setUp(): void
     {
-        $db = new Db();
-        $this->assertEquals(
-            '[{"id":1,"name":"Mike","address":"Saratov","city":"Pushkina 3"},{"id":2,"name":"Vik","address":"Moscow","city":"Pomortseva 12"}]',
-            json_encode($db->get())
-        );
+        parent::setUp();
+
+        $this->db = new Db();
+    }
+
+    /**
+     * @dataProvider dataProvider
+     */
+    public final function testGet(int $cat, int $count, string $data): void
+    {
+        $r = $this->db->get($cat);
+
+        $this->assertCount($count, $r);
+        $this->assertEquals($data, json_encode($r));
+    }
+
+    public final static function dataProvider(): array
+    {
+        return [
+            'test 1 cat' => [1, 2, '[{"id":100,"user":{"id":1,"name":"Mike","gender":"Male"}},{"id":101,"user":{"id":2,"name":"Vik","gender":"Female"}}]'],
+            'test 2 cat' => [2, 1, '[{"id":103,"user":{"id":1,"name":"Mike","gender":"Male"}}]'],
+        ];
     }
 }

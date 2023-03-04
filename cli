@@ -8,15 +8,27 @@ if (php_sapi_name() !== 'cli') {
 require __DIR__ . '/vendor/autoload.php';
 
 use Cli\Db;
-use Cli\Hello;
 use Minicli\App;
 use Minicli\Command\CommandCall;
 
 $app = new App();
 $app->setSignature('use command get or seed');
 
-$app->registerCommand('get', function() {
-    echo Hello::hello();
+$app->registerCommand('get', function(CommandCall $input) use ($app) {
+    if (empty($input->subcommand)) {
+        $app->getPrinter()->error('Please enter category id');
+    }
+
+    try {
+        $db = new Db();
+        $app->getPrinter()->display(
+            json_encode(
+                $db->get((int) $input->subcommand)
+            )
+        );
+    } catch (\Throwable $throwable) {
+        $app->getPrinter()->error('Something went wrong:' . $throwable->getMessage() . $throwable->getTraceAsString());
+    }
 });
 
 
