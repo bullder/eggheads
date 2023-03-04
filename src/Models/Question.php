@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 namespace Cli\Models;
+
 readonly class Question
 {
     public function __construct(

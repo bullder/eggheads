@@ -11,7 +11,7 @@ class DbTest extends TestCase
 {
     private Db $db;
 
-    public function setUp(): void
+    public final function setUp(): void
     {
         parent::setUp();
 

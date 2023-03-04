@@ -6,7 +6,10 @@ namespace Cli;
 
 use Cli\Models\Question;
 use Cli\Models\User;
+use Exception;
 use PDO;
+use PDOException;
+use Throwable;
 
 class Db
 {
@@ -24,13 +27,13 @@ class Db
         $dsn = "mysql:host=$host;dbname=$db;port=$port;charset=$charset";
         try {
             $this->con = new PDO($dsn, $user, $pass);
-        } catch (\PDOException $e) {
-            throw new \PDOException($e->getMessage(), (int)$e->getCode());
+        } catch (PDOException $e) {
+            throw new PDOException($e->getMessage(), (int)$e->getCode());
         }
     }
 
     /**
-     * @return array|User[]
+     * @return array|Question[]
      */
     public final function get(int $categoryId): array
     {
@@ -63,6 +66,9 @@ class Db
         return $result;
     }
 
+    /**
+     * @throws Exception
+     */
     public final function seedDb(): string
     {
         $this->seedDbUsers();
@@ -71,23 +77,25 @@ class Db
         return 'Db have been seed';
     }
 
+    /**
+     * @throws Exception
+     */
     public final function seedDbQuestions(): void
     {
         $drop = $this->con->query('DROP TABLE IF EXISTS questions');
         if (!$drop->execute()) {
-            throw new \Exception('can not drop table');
+            throw new Exception('can not drop table');
         }
 
-        $create = $this->con->query("
+        $create = $this->con->query('
             CREATE TABLE IF NOT EXISTS questions (
             `id` int DEFAULT NULL,
             `category_id` int DEFAULT NULL,
             `user_id` int DEFAULT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-        "
-        );
+        ');
         if (!$create->execute()) {
-            throw new \Exception('can not create table');
+            throw new Exception('can not create table');
         }
 
         $data = [
@@ -95,7 +103,7 @@ class Db
             [101, 1, 2],
             [103, 2, 1],
         ];
-        $stmt = $this->con->prepare("INSERT INTO questions (id, category_id, user_id) VALUES (?,?,?)");
+        $stmt = $this->con->prepare('INSERT INTO questions (id, category_id, user_id) VALUES (?,?,?)');
         try {
             $this->con->beginTransaction();
             foreach ($data as $row)
@@ -103,38 +111,37 @@ class Db
                 $stmt->execute($row);
             }
             $this->con->commit();
-        } catch (\Throwable $e){
+        } catch (Throwable){
             $this->con->rollback();
-            throw new \Exception('can not insert into questions');
+            throw new Exception('can not insert into questions');
         }
     }
     /**
-     * @throws \Exception
+     * @throws Exception
      */
     public final function seedDbUsers(): void
     {
         $drop = $this->con->query('DROP TABLE IF EXISTS users');
         if (!$drop->execute()) {
-            throw new \Exception('can not drop table users');
+            throw new Exception('can not drop table users');
         }
 
-        $create = $this->con->query("
+        $create = $this->con->query('
             CREATE TABLE IF NOT EXISTS users (
             `id` int DEFAULT NULL,
             `name` varchar(255) DEFAULT NULL,
             `gender` varchar(255) DEFAULT NULL
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
-        "
-        );
+        ');
         if (!$create->execute()) {
-            throw new \Exception('can not create table users');
+            throw new Exception('can not create table users');
         }
 
         $data = [
             [1,'Mike','Male'],
             [2,'Vik','Female'],
         ];
-        $stmt = $this->con->prepare("INSERT INTO users (id, name, gender) VALUES (?,?,?)");
+        $stmt = $this->con->prepare('INSERT INTO users (id, name, gender) VALUES (?,?,?)');
         try {
             $this->con->beginTransaction();
             foreach ($data as $row)
@@ -142,9 +149,9 @@ class Db
                 $stmt->execute($row);
             }
             $this->con->commit();
-        } catch (\Throwable $e){
+        } catch (Throwable){
             $this->con->rollback();
-            throw new \Exception('can not insert into users');
+            throw new Exception('can not insert into users');
         }
     }
 }
