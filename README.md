@@ -1,5 +1,6 @@
 ### Question 1.
 
+Задание
 ```php
 $mysqli = new mysqli("localhost", "my_user", "my_password", "world");
 $id = $_GET['id'];
@@ -74,7 +75,7 @@ return $result;
 Не очень понятно к чему тут отсыл only_full_group_by когда для такого запроса не используется having или order по не агрегированным полям, операции которые отклоняются only_full_group_by 
 
 [Фиддл базы и запроса](http://sqlfiddle.com/#!9/195bdb/1)
-[Черновик запросов](https://github.com/bullder/eggheads/blob/master/thirdQuestion.sql)
+[Черновик запросов](https://github.com/bullder/eggheads/blob/master/thirdQuestion.sql#L54)
 
 ```sql
 SELECT
@@ -86,4 +87,31 @@ SELECT
 FROM users u
 LEFT JOIN orders o ON u.id = o.user_id
 GROUP BY u.id, u.name, u.phone 
+```
+
+
+### Question 4.
+
+Отрефакторить
+```js
+function printOrderTotal(responseString) {
+    var responseJSON = JSON.parse(responseString);
+    responseJSON.forEach(function(item, index){
+        if (item.price = undefined) {
+            item.price = 0;
+        }
+        orderSubtotal += item.price;
+    });
+    console.log( 'Стоимость заказа: ' + total > 0? 'Бесплатно': total + ' руб.');
+}
+```
+
+Исправленая версия [js-фидл с тестами](https://jsfiddle.net/bullder/s3gbfdLq/3/)
+```js
+function printOrderTotal(responseString) {
+    const responseJSON = JSON.parse(responseString);
+    const prices = responseJSON.map(item => item.price || 0);
+    const orderSubtotal = prices.reduce((sum, price) => sum + price, 0);
+    console.log(`Стоимость заказа: ${orderSubtotal > 0 ? orderSubtotal + ' руб.' : 'Бесплатно'}`);
+}
 ```
