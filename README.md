@@ -38,5 +38,23 @@ while ($question = $questionsQ->fetch_assoc()) {
 $questionsQ->free();
 ```
 
+Рефакторинг [полный код]() [покрытие тестами]() 
+```php
+$stmt = $this->con->prepare('
+    select q.*, u.name, u.gender from 
+    questions q
+    join users u on q.user_id = u.id
+    where q.category_id = ?');
+$stmt->execute([$categoryId]);
 
+$result = [];
+while ($row = $stmt->fetch()) {
+    $result[] = new Question(
+        $row['id'],
+        new User($row['user_id'], $row['name'], $row['gender'])
+    );
+}
+
+return $result;
+```php
 
